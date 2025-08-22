@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>REST API Test Tool</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<header class="app-header">
+		<h1>REST API Test Tool</h1>
+	</header>
+
+	<main class="container">
+		<section class="left-column">
+			<div class="row">
+				<label for="baseUrl">ベースURL</label>
+				<input id="baseUrl" type="text" value="http://localhost:3000" placeholder="http://localhost:3000" />
+			</div>
+
+			<div class="blocks-header">
+				<h2>APIブロック</h2>
+			</div>
+			<div id="blocks" class="blocks">
+				<!-- サンプルAPI 1: POST /users -->
+				<div class="api-block" data-path="/users" data-method="POST">
+					<div class="row"><label>URI</label><input type="text" value="/users" disabled></div>
+					<div class="row"><label>メソッド</label><span class="method-badge" data-method="POST">POST</span></div>
+					<div class="row">
+						<label>リクエストボディ（固定Key）</label>
+						<div class="kv-table fixed">
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="name">name</div>
+								<input type="text" placeholder="例: Alice">
+							</div>
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="email">email</div>
+								<input type="text" placeholder="例: alice@example.com">
+							</div>
+						</div>
+					</div>
+					<div class="row"><button class="primary send">送信</button></div>
+				</div>
+
+				<!-- サンプルAPI 2: PUT /products -->
+				<div class="api-block" data-path="/products" data-method="PUT">
+					<div class="row"><label>URI</label><input type="text" value="/products" disabled></div>
+					<div class="row"><label>メソッド</label><span class="method-badge" data-method="PUT">PUT</span></div>
+					<div class="row">
+						<label>リクエストボディ（固定Key）</label>
+						<div class="kv-table fixed">
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="id">id</div>
+								<input type="text" placeholder="例: 1001">
+							</div>
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="price">price</div>
+								<input type="text" placeholder="例: 980">
+							</div>
+						</div>
+					</div>
+					<div class="row"><button class="primary send">送信</button></div>
+				</div>
+
+				<!-- サンプルAPI 3: PATCH /orders -->
+				<div class="api-block" data-path="/orders" data-method="PATCH">
+					<div class="row"><label>URI</label><input type="text" value="/orders" disabled></div>
+					<div class="row"><label>メソッド</label><span class="method-badge" data-method="PATCH">PATCH</span></div>
+					<div class="row">
+						<label>リクエストボディ（固定Key）</label>
+						<div class="kv-table fixed">
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="orderId">orderId</div>
+								<input type="text" placeholder="例: ORD-001">
+							</div>
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="status">status</div>
+								<input type="text" placeholder="例: shipped">
+							</div>
+						</div>
+					</div>
+					<div class="row"><button class="primary send">送信</button></div>
+				</div>
+
+				<!-- サンプルAPI 4: GET /users/{userId}/orders/{orderId} -->
+				<div class="api-block" data-path="/users/{userId}/orders/{orderId}" data-method="GET">
+					<div class="row"><label>URI</label><input type="text" value="/users/{userId}/orders/{orderId}" disabled></div>
+					<div class="row"><label>メソッド</label><span class="method-badge" data-method="GET">GET</span></div>
+					<div class="row">
+						<label>パスパラメータ</label>
+						<div class="path-table fixed">
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="userId">userId</div>
+								<input type="text" placeholder="例: 1">
+							</div>
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="orderId">orderId</div>
+								<input type="text" placeholder="例: 10001">
+							</div>
+						</div>
+					</div>
+					<div class="row"><button class="primary send">送信</button></div>
+				</div>
+
+				<!-- サンプルAPI 5: PATCH /users/{userId} + body（両立） -->
+				<div class="api-block" data-path="/users/{userId}" data-method="PATCH">
+					<div class="row"><label>URI</label><input type="text" value="/users/{userId}" disabled></div>
+					<div class="row"><label>メソッド</label><span class="method-badge" data-method="PATCH">PATCH</span></div>
+					<div class="row">
+						<label>パスパラメータ</label>
+						<div class="path-table fixed">
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="userId">userId</div>
+								<input type="text" placeholder="例: 1">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<label>リクエストボディ（固定Key）</label>
+						<div class="kv-table fixed">
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="name">name</div>
+								<input type="text" placeholder="例: Alice">
+							</div>
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="email">email</div>
+								<input type="text" placeholder="例: alice@example.com">
+							</div>
+						</div>
+					</div>
+					<div class="row"><button class="primary send">送信</button></div>
+				</div>
+			</div>
+		</section>
+
+		<section class="response-view">
+			<h2>直近のレスポンス</h2>
+			<div class="response-meta">
+				<span id="reqSummary">-</span>
+				<span id="statusCode">Status: -</span>
+				<span id="duration">Time: - ms</span>
+			</div>
+			<div class="tabs">
+				<button data-tab="body" class="tab active">Body</button>
+				<button data-tab="headers" class="tab">Headers</button>
+			</div>
+			<div class="tab-panels">
+				<pre id="responseBody" class="panel active"></pre>
+				<pre id="responseHeaders" class="panel"></pre>
+			</div>
+		</section>
+	</main>
+
+	<footer class="app-footer">
+		<small>ブラウザだけで動作（CORSに注意）</small>
+	</footer>
+
+	<script src="app.js"></script>
+</body>
+</html> 
