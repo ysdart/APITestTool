@@ -10,63 +10,37 @@
 	const tabButtons = document.querySelectorAll('.tab');
 	const panels = document.querySelectorAll('.panel');
 
-	/**
-	 * ブロックに含まれる固定ボディ値を収集
-	 * @param {HTMLElement} block
-	 * @returns {Record<string,string>}
-	 */
-	function collectFixedBody(block){
-		const rows = block.querySelectorAll('.kv-table .kv-row');
-		const obj = {};
-		rows.forEach(row=>{
-			const keyDiv = row.querySelector('.kv-key');
-			const input = row.querySelector('input');
-			if(keyDiv && input){
-				const key = keyDiv.getAttribute('data-key');
-				obj[key] = input.value;
-			}
-		});
-		return obj;
-	}
+	let defaultsMap = (window && window.REST_API_TEST_DEFAULTS) ? window.REST_API_TEST_DEFAULTS : {};
 
-	/**
-	 * ブロックに含まれるパスパラメータ値を収集
-	 * @param {HTMLElement} block
-	 * @returns {Record<string,string>}
-	 */
+	/** パスパラメータ収集 */
 	function collectPathParams(block){
 		const rows = block.querySelectorAll('.path-table .kv-row');
 		const obj = {};
 		rows.forEach(row=>{
 			const keyDiv = row.querySelector('.kv-key');
 			const input = row.querySelector('input');
-			if(keyDiv && input){
-				const key = keyDiv.getAttribute('data-key');
-				obj[key] = input.value;
-			}
+			if(keyDiv && input){ obj[keyDiv.getAttribute('data-key')] = input.value; }
 		});
 		return obj;
 	}
 
-	/**
-	 * {token} を値で置換してURLパスを作成
-	 * @param {string} template
-	 * @param {Record<string,string>} params
-	 */
+	/** {token} 置換 */
 	function replacePathTokens(template, params){
 		let path = template;
 		Object.keys(params).forEach(k=>{
 			const token = '{' + k + '}';
-			const value = encodeURIComponent(params[k] || '');
-			path = path.split(token).join(value);
+			path = path.split(token).join(encodeURIComponent(params[k] || ''));
 		});
 		return path;
 	}
 
-	/**
-	 * 右側のレスポンス表示を初期化
-	 * @param {string} summary
-	 */
+	/** JSON parse（空ならundefined） */
+	function parseBodyJson(text){
+		if(!text || !text.trim()) return undefined;
+		return JSON.parse(text);
+	}
+
+	/** レスポンス欄初期化 */
 	function resetResponse(summary){
 		reqSummarySpan.textContent = summary || '-';
 		statusSpan.textContent = 'Status: ...';
@@ -77,7 +51,7 @@
 
 	/** レスポンス描画 */
 	async function renderResponse(res){
-		const headersObj = {}; res.headers.forEach((v, k)=> headersObj[k]=v);
+		const headersObj = {}; res.headers.forEach((v, k)=> headersObj[k] = v);
 		responseHeadersPre.textContent = JSON.stringify(headersObj, null, 2);
 		const contentType = res.headers.get('content-type') || '';
 		if(contentType.includes('application/json')){
@@ -85,10 +59,7 @@
 		}else{ const text = await res.text(); responseBodyPre.textContent = text; }
 	}
 
-	/**
-	 * ブロック内容からURLとinitを構築して送信
-	 * @param {HTMLElement} block
-	 */
+	/** 送信 */
 	async function sendBlock(block){
 		const baseUrl = (baseUrlInput.value || '').trim().replace(/\/$/, '');
 		const templatePath = block.getAttribute('data-path');
@@ -97,11 +68,22 @@
 		const filledPath = replacePathTokens(templatePath, pathParams);
 		const url = baseUrl + filledPath;
 
-		const bodyObj = collectFixedBody(block);
-		const init = { method, headers: {} };
+		// JSONテキストボックス読み取り
+		const bodyTextarea = block.querySelector('.body-json');
+		let init = { method, headers: {} };
 		if(method !== 'GET' && method !== 'HEAD'){
-			init.headers['Content-Type'] = 'application/json;charset=UTF-8';
-			init.body = JSON.stringify(bodyObj);
+			try{
+				const parsed = parseBodyJson(bodyTextarea ? bodyTextarea.value : '');
+				if(parsed !== undefined){
+					init.headers['Content-Type'] = 'application/json;charset=UTF-8';
+					init.body = JSON.stringify(parsed);
+				}
+			}catch(err){
+				resetResponse(method + ' ' + url);
+				statusSpan.textContent = 'Error';
+				responseBodyPre.textContent = 'JSONの構文が不正です: ' + String(err.message || err);
+				return; // 送信しない
+			}
 		}
 
 		resetResponse(method + ' ' + url);
@@ -120,7 +102,22 @@
 		}
 	}
 
-	/** 送信ボタンを紐付け */
+	/** リセットボタン */
+	function wireResetButtons(){
+		blocksContainer.querySelectorAll('.api-block .body-reset').forEach(btn=>{
+			btn.addEventListener('click', (e)=>{
+				const block = e.target.closest('.api-block');
+				const ta = block.querySelector('.body-json');
+				if(ta){
+					const key = ta.getAttribute('data-default-key');
+					const v = defaultsMap[key];
+					ta.value = v ? JSON.stringify(v, null, 2) : '';
+				}
+			});
+		});
+	}
+
+	/** 送信ボタン */
 	function wireSendButtons(){
 		blocksContainer.querySelectorAll('.api-block .send').forEach(btn=>{
 			btn.addEventListener('click', (e)=>{
@@ -130,7 +127,7 @@
 		});
 	}
 
-	/** タブ切替 */
+	/** タブ */
 	function wireTabs(){
 		tabButtons.forEach(btn=>{
 			btn.addEventListener('click', ()=>{
@@ -144,7 +141,18 @@
 		});
 	}
 
+	/** defaults.js から初期値を各textareaに反映 */
+	function applyDefaults(){
+		blocksContainer.querySelectorAll('.api-block .body-json').forEach(ta=>{
+			const key = ta.getAttribute('data-default-key');
+			const v = defaultsMap[key];
+			ta.value = v ? JSON.stringify(v, null, 2) : '';
+		});
+	}
+
 	// 初期化
+	wireResetButtons();
 	wireSendButtons();
 	wireTabs();
+	applyDefaults();
 })(); 

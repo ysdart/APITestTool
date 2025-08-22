@@ -15,117 +15,56 @@
 		<section class="left-column">
 			<div class="row">
 				<label for="baseUrl">ベースURL</label>
-				<input id="baseUrl" type="text" value="http://localhost:3000" placeholder="http://localhost:3000" />
+				<input id="baseUrl" type="text" value="https://api.restful-api.dev" placeholder="https://api.restful-api.dev" />
+				<!-- <input id="baseUrl" type="text" value="http://localhost:3000" placeholder="http://localhost:3000" /> -->
 			</div>
 
 			<div class="blocks-header">
-				<h2>APIブロック</h2>
+				<h2>サンプルAPI</h2>
 			</div>
 			<div id="blocks" class="blocks">
 				<!-- サンプルAPI 1: POST /users -->
-				<div class="api-block" data-path="/users" data-method="POST">
-					<div class="row"><label>URI</label><input type="text" value="/users" disabled></div>
+				<div class="api-block" data-path="/objects" data-method="GET">
+					<div class="row"><label>URI</label><input type="text" value="/objects" disabled></div>
+					<div class="row"><label>メソッド</label><span class="method-badge" data-method="GET">GET</span></div>
+                    <div class="row">
+						<label>パスパラメータ</label>
+                        なし
+						<!-- <div class="path-table fixed">
+							<div class="kv-row" style="display:contents">
+								<div class="kv-key" data-key="objectId">objectId</div>
+								<input type="text" placeholder="例: 7" value="7">
+							</div>
+						</div> -->
+					</div>
+					<div class="row">
+						<label>リクエストボディ</label>
+						なし<!-- <div class="body-json-wrap">
+							<textarea class="body-json" rows="8" data-default-key="GET /objects"></textarea>
+							<div class="actions"><button type="button" class="secondary body-reset">初期値にリセット</button></div>
+						</div> -->
+					</div>
+					<div class="row"><button class="primary send">送信</button></div>
+				</div>
+
+				<!-- サンプルAPI 2-->
+				<div class="api-block" data-path="/objects" data-method="POST">
+					<div class="row"><label>URI</label><input type="text" value="/objects" disabled></div>
 					<div class="row"><label>メソッド</label><span class="method-badge" data-method="POST">POST</span></div>
 					<div class="row">
-						<label>リクエストボディ（固定Key）</label>
-						<div class="kv-table fixed">
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="name">name</div>
-								<input type="text" placeholder="例: Alice">
-							</div>
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="email">email</div>
-								<input type="text" placeholder="例: alice@example.com">
-							</div>
-						</div>
-					</div>
-					<div class="row"><button class="primary send">送信</button></div>
-				</div>
-
-				<!-- サンプルAPI 2: PUT /products -->
-				<div class="api-block" data-path="/products" data-method="PUT">
-					<div class="row"><label>URI</label><input type="text" value="/products" disabled></div>
-					<div class="row"><label>メソッド</label><span class="method-badge" data-method="PUT">PUT</span></div>
-					<div class="row">
-						<label>リクエストボディ（固定Key）</label>
-						<div class="kv-table fixed">
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="id">id</div>
-								<input type="text" placeholder="例: 1001">
-							</div>
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="price">price</div>
-								<input type="text" placeholder="例: 980">
-							</div>
-						</div>
-					</div>
-					<div class="row"><button class="primary send">送信</button></div>
-				</div>
-
-				<!-- サンプルAPI 3: PATCH /orders -->
-				<div class="api-block" data-path="/orders" data-method="PATCH">
-					<div class="row"><label>URI</label><input type="text" value="/orders" disabled></div>
-					<div class="row"><label>メソッド</label><span class="method-badge" data-method="PATCH">PATCH</span></div>
-					<div class="row">
-						<label>リクエストボディ（固定Key）</label>
-						<div class="kv-table fixed">
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="orderId">orderId</div>
-								<input type="text" placeholder="例: ORD-001">
-							</div>
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="status">status</div>
-								<input type="text" placeholder="例: shipped">
-							</div>
-						</div>
-					</div>
-					<div class="row"><button class="primary send">送信</button></div>
-				</div>
-
-				<!-- サンプルAPI 4: GET /users/{userId}/orders/{orderId} -->
-				<div class="api-block" data-path="/users/{userId}/orders/{orderId}" data-method="GET">
-					<div class="row"><label>URI</label><input type="text" value="/users/{userId}/orders/{orderId}" disabled></div>
-					<div class="row"><label>メソッド</label><span class="method-badge" data-method="GET">GET</span></div>
-					<div class="row">
 						<label>パスパラメータ</label>
-						<div class="path-table fixed">
+						なし<!-- <div class="path-table fixed">
 							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="userId">userId</div>
-								<input type="text" placeholder="例: 1">
+								<div class="kv-key" data-key="objectId">objectId</div>
+								<input type="text" placeholder="例: 7" value="7">
 							</div>
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="orderId">orderId</div>
-								<input type="text" placeholder="例: 10001">
-							</div>
-						</div>
-					</div>
-					<div class="row"><button class="primary send">送信</button></div>
-				</div>
-
-				<!-- サンプルAPI 5: PATCH /users/{userId} + body（両立） -->
-				<div class="api-block" data-path="/users/{userId}" data-method="PATCH">
-					<div class="row"><label>URI</label><input type="text" value="/users/{userId}" disabled></div>
-					<div class="row"><label>メソッド</label><span class="method-badge" data-method="PATCH">PATCH</span></div>
-					<div class="row">
-						<label>パスパラメータ</label>
-						<div class="path-table fixed">
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="userId">userId</div>
-								<input type="text" placeholder="例: 1">
-							</div>
-						</div>
+						</div> -->
 					</div>
 					<div class="row">
-						<label>リクエストボディ（固定Key）</label>
-						<div class="kv-table fixed">
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="name">name</div>
-								<input type="text" placeholder="例: Alice">
-							</div>
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="email">email</div>
-								<input type="text" placeholder="例: alice@example.com">
-							</div>
+						<label>リクエストボディ</label>
+						<div class="body-json-wrap">
+							<textarea class="body-json" rows="8" data-default-key="POST /objects"></textarea>
+							<div class="actions"><button type="button" class="secondary body-reset">初期値にリセット</button></div>
 						</div>
 					</div>
 					<div class="row"><button class="primary send">送信</button></div>
@@ -155,6 +94,7 @@
 		<small>ブラウザだけで動作（CORSに注意）</small>
 	</footer>
 
+	<script src="defaults.js"></script>
 	<script src="app.js"></script>
 </body>
 </html> 
