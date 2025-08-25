@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>OpenAPI to HTML</title>
+<style>
+  .api-block { border: 1px solid #ccc; margin: 1em 0; padding: 1em; }
+  .row { margin-bottom: 0.5em; }
+  .kv-row { display: flex; gap: 0.5em; }
+  .kv-key { font-weight: bold; }
+  .method-badge { padding: 0.2em 0.5em; border: 1px solid #333; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="api-container"></div>
+
+<script>
+// ★ サンプル OpenAPI JSON
+const openapiJson = {
+  paths: {
+    "/objects/{objectId}": {
+      get: {
+        summary: "Get object",
+        parameters: [
+          { name: "objectId", in: "path", required: true, schema: { type: "string", example: "7" } },
+          { name: "filter", in: "query", schema: { type: "string", example: "active" } }
+        ],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: { type: "object" }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+// ★ HTML生成関数
+function renderApiDocs(json) {
+  const container = document.getElementById("api-container");
+
+  for (const path in json.paths) {
+    const methods = json.paths[path];
+    for (const method in methods) {
+      const data = methods[method];
+
+      // APIブロック生成
+      const block = document.createElement("div");
+      block.className = "api-block";
+      block.dataset.path = path;
+      block.dataset.method = method.toUpperCase();
+
+      // URI行
+      block.innerHTML += `
+        <div class="row"><label>URI</label><input type="text" value="${path}" disabled></div>
+      `;
+
+      // メソッド行
+      block.innerHTML += `
+        <div class="row"><label>メソッド</label>
+          <span class="method-badge" data-method="${method.toUpperCase()}">${method.toUpperCase()}</span>
+        </div>
+      `;
+
+      // パラメータ分類
+      const pathParams = (data.parameters || []).filter(p => p.in === "path");
+      const queryParams = (data.parameters || []).filter(p => p.in === "query");
+
+      // パスパラメータ
+      if (pathParams.length > 0) {
+        let paramHtml = `<div class="row"><label>パスパラメータ</label><div class="path-table fixed">`;
+        pathParams.forEach(p => {
+          paramHtml += `
+            <div class="kv-row">
+              <div class="kv-key" data-key="${p.name}">${p.name}</div>
+              <input type="text" placeholder="例: ${p.schema.example || ''}" value="${p.schema.example || ''}">
+            </div>
+          `;
+        });
+        paramHtml += `</div></div>`;
+        block.innerHTML += paramHtml;
+      }
+
+      // クエリパラメータ
+      block.innerHTML += `
+        <div class="row">
+          <label>クエリパラメータ</label>
+          <div class="body-json-wrap">
+            <textarea class="query-json" rows="4" data-default-key="QUERY ${method.toUpperCase()} ${path}"></textarea>
+            <div class="actions"><button type="button" class="secondary query-reset">初期値にリセット</button></div>
+          </div>
+        </div>
+      `;
+
+      // リクエストボディ
+      if (data.requestBody) {
+        block.innerHTML += `
+          <div class="row">
+            <label>リクエストボディ</label>
+            <div class="body-json-wrap">
+              <textarea class="body-json" rows="8" data-default-key="${method.toUpperCase()} ${path}"></textarea>
+              <div class="actions"><button type="button" class="secondary body-reset">初期値にリセット</button></div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 送信ボタン
+      block.innerHTML += `
+        <div class="row"><button class="primary send">送信</button></div>
+      `;
+
+      container.appendChild(block);
+    }
+  }
+}
+
+renderApiDocs(openapiJson);
+</script>
+</body>
+</html>
