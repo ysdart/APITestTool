@@ -49,6 +49,25 @@
 		responseHeadersPre.textContent = '';
 	}
 
+	/** クエリ文字列の構築（JSON → URLSearchParams） */
+	function buildQueryStringFromJson(text){
+		if(!text || !text.trim()) return '';
+		let obj = {};
+		try{ obj = JSON.parse(text); }
+		catch(e){ throw new Error('クエリJSONの構文が不正です: ' + String(e.message || e)); }
+		const usp = new URLSearchParams();
+		Object.keys(obj || {}).forEach(key=>{
+			const value = obj[key];
+			if(Array.isArray(value)){
+				value.forEach(v=> usp.append(key, String(v)));
+			}else if(value !== undefined && value !== null){
+				usp.append(key, String(value));
+			}
+		});
+		const qs = usp.toString();
+		return qs ? ('?' + qs) : '';
+	}
+
 	/** レスポンス描画 */
 	async function renderResponse(res){
 		const headersObj = {}; res.headers.forEach((v, k)=> headersObj[k] = v);
@@ -66,7 +85,21 @@
 		const method = block.getAttribute('data-method');
 		const pathParams = collectPathParams(block);
 		const filledPath = replacePathTokens(templatePath, pathParams);
-		const url = baseUrl + filledPath;
+		// クエリJSON読み取り
+		const queryTextarea = block.querySelector('.query-json');
+		let queryString = '';
+		if(queryTextarea){
+			try{
+				queryString = buildQueryStringFromJson(queryTextarea.value || '');
+			}catch(err){
+				resetResponse(method + ' ' + (baseUrl + filledPath));
+				statusSpan.textContent = 'Error';
+				responseBodyPre.textContent = String(err.message || err);
+				return;
+			}
+		}
+
+		const url = baseUrl + filledPath + queryString;
 
 		// JSONテキストボックス読み取り
 		const bodyTextarea = block.querySelector('.body-json');
@@ -115,6 +148,18 @@
 				}
 			});
 		});
+
+		blocksContainer.querySelectorAll('.api-block .query-reset').forEach(btn=>{
+			btn.addEventListener('click', (e)=>{
+				const block = e.target.closest('.api-block');
+				const ta = block.querySelector('.query-json');
+				if(ta){
+					const key = ta.getAttribute('data-default-key');
+					const v = defaultsMap[key];
+					ta.value = v ? JSON.stringify(v, null, 2) : '';
+				}
+			});
+		});
 	}
 
 	/** 送信ボタン */
@@ -144,6 +189,11 @@
 	/** defaults.js から初期値を各textareaに反映 */
 	function applyDefaults(){
 		blocksContainer.querySelectorAll('.api-block .body-json').forEach(ta=>{
+			const key = ta.getAttribute('data-default-key');
+			const v = defaultsMap[key];
+			ta.value = v ? JSON.stringify(v, null, 2) : '';
+		});
+		blocksContainer.querySelectorAll('.api-block .query-json').forEach(ta=>{
 			const key = ta.getAttribute('data-default-key');
 			const v = defaultsMap[key];
 			ta.value = v ? JSON.stringify(v, null, 2) : '';

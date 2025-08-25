@@ -2,6 +2,10 @@ window.REST_API_TEST_DEFAULTS = {
 	"GET /objects": {
 		
 	},
+	"QUERY GET /objects": {
+		"page": 1,
+		"limit": 5
+	},
 	"POST /objects": {
         "name": "Apple MacBook Pro 16",
         "data": {
@@ -10,5 +14,8 @@ window.REST_API_TEST_DEFAULTS = {
            "CPU model": "Intel Core i9",
            "Hard disk size": "1 TB"
         }
-     }
+     },
+	"QUERY POST /objects": {
+		"debug": true
+	}
 }; 
