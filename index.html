@@ -1,112 +1,165 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
+
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>REST API Test Tool</title>
-	<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REST API Test Tool</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="lib/js-yml.min.js"></script>
+  <script defer src="app.js"></script>
+  <!-- 構造データとデフォルトテストデータの指定を確認すること -->
+  <script src="ifdocument/ifdoc.js"></script>
+  <script src="defaultsData/data.js"></script>
+  <script>
+    const openapiJson = jsyaml.load(getIfdoc());
+	console.log(openapiJson);
+
+    // YAMLファイルを取り込んでJSON化する場合
+    // async function loadYamlAsJson(url) {
+    //  const text = await (await fetch(url)).text();
+    //  const data = jsyaml.load(text);            // 1ドキュメント想定
+    //  return JSON.stringify(data, null, 2);      // JSON文字列に
+    // }
+    // loadYamlAsJson('./yml/別紙5-3_DIDレジストリIF仕様(DIDquery).yml').then(console.log);
+  </script>
 </head>
+
 <body>
-	<header class="app-header">
-		<h1>REST API Test Tool</h1>
-	</header>
+  <header class="app-header" id="top">
+    <a href="_index.html">
+      <h1>REST API Test Tool</h1>
+    </a>
+    <!-- <a href="#top">↑ top</a> -->
+  </header>
 
-	<main class="container">
-		<section class="left-column">
-			<div class="row">
-				<label for="baseUrl">ベースURL</label>
-				<input id="baseUrl" type="text" value="https://api.restful-api.dev" placeholder="https://api.restful-api.dev" />
-				<!-- <input id="baseUrl" type="text" value="http://localhost:3000" placeholder="http://localhost:3000" /> -->
-			</div>
+  <main class="container">
+    <section class="left-column">
+      <div class="row">
+        <label for="baseUrl">ベースURL</label>
+        <!-- <input id="baseUrl" type="text" value="https://api.restful-api.dev" placeholder="https://api.restful-api.dev" /> -->
+        <input id="baseUrl" type="text" value="http://localhost:3000" placeholder="http://localhost:3000" />
+      </div>
 
-			<div class="blocks-header">
-				<h2>サンプルAPI</h2>
-			</div>
-			<div id="blocks" class="blocks">
-				<div class="api-block" data-path="/objects" data-method="GET">
-					<div class="row"><label>URI</label><input type="text" value="/objects" disabled></div>
-					<div class="row"><label>メソッド</label><span class="method-badge" data-method="GET">GET</span></div>
-                    <div class="row">
-						<label>パスパラメータ</label>
-						<div class="path-table fixed">
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="objectId">objectId</div>
-								<input type="text" placeholder="例: 7" value="7">
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						<label>クエリパラメータ</label>
-						<div class="body-json-wrap">
-							<textarea class="query-json" rows="4" data-default-key="QUERY GET /objects"></textarea>
-							<div class="actions"><button type="button" class="secondary query-reset">初期値にリセット</button></div>
-						</div>
-					</div>
-					<div class="row">
-						<label>リクエストボディ</label>
-						<div class="body-json-wrap">
-							<textarea class="body-json" rows="8" data-default-key="GET /objects"></textarea>
-							<div class="actions"><button type="button" class="secondary body-reset">初期値にリセット</button></div>
-						</div>
-					</div>
-					<div class="row"><button class="primary send">送信</button></div>
-				</div>
+      <div>
+        <div class="blocks-header">
+          <h2>APIテスト</h2>
+        </div>
+        <div id="blocks" class="blocks">
+          <div id="api-container"></div>
+        </div>
+      </div>
+    </section>
 
-				<!-- サンプルAPI 2-->
-				<div class="api-block" data-path="/objects" data-method="POST">
-					<div class="row"><label>URI</label><input type="text" value="/objects" disabled></div>
-					<div class="row"><label>メソッド</label><span class="method-badge" data-method="POST">POST</span></div>
-					<div class="row">
-						<label>パスパラメータ</label>
-						なし<!-- <div class="path-table fixed">
-							<div class="kv-row" style="display:contents">
-								<div class="kv-key" data-key="objectId">objectId</div>
-								<input type="text" placeholder="例: 7" value="7">
-							</div>
-						</div> -->
-					</div>
-					<div class="row">
-						<label>クエリパラメータ</label>
-						<div class="body-json-wrap">
-							<textarea class="query-json" rows="4" data-default-key="QUERY POST /objects"></textarea>
-							<div class="actions"><button type="button" class="secondary query-reset">初期値にリセット</button></div>
-						</div>
-					</div>
-					<div class="row">
-						<label>リクエストボディ</label>
-						<div class="body-json-wrap">
-							<textarea class="body-json" rows="8" data-default-key="POST /objects"></textarea>
-							<div class="actions"><button type="button" class="secondary body-reset">初期値にリセット</button></div>
-						</div>
-					</div>
-					<div class="row"><button class="primary send">送信</button></div>
-				</div>
-			</div>
-		</section>
+    <section class="response-view">
+      <h2>直近のレスポンス</h2>
+      <div class="response-meta">
+        <span id="reqSummary">-</span>
+        <span id="statusCode">Status: -</span>
+        <span id="duration">Time: - ms</span>
+      </div>
+      <div class="tabs">
+        <button data-tab="body" class="tab active">Body</button>
+        <button data-tab="headers" class="tab">Headers</button>
+      </div>
+      <div class="tab-panels">
+        <pre id="responseBody" class="panel active"></pre>
+        <pre id="responseHeaders" class="panel"></pre>
+      </div>
+    </section>
+  </main>
 
-		<section class="response-view">
-			<h2>直近のレスポンス</h2>
-			<div class="response-meta">
-				<span id="reqSummary">-</span>
-				<span id="statusCode">Status: -</span>
-				<span id="duration">Time: - ms</span>
-			</div>
-			<div class="tabs">
-				<button data-tab="body" class="tab active">Body</button>
-				<button data-tab="headers" class="tab">Headers</button>
-			</div>
-			<div class="tab-panels">
-				<pre id="responseBody" class="panel active"></pre>
-				<pre id="responseHeaders" class="panel"></pre>
-			</div>
-		</section>
-	</main>
+  <footer class="app-footer">
+    <small>ブラウザだけで動作（CORSに注意）</small>
+  </footer>
 
-	<footer class="app-footer">
-		<small>ブラウザだけで動作（CORSに注意）</small>
-	</footer>
+  <script>
+    // ★ HTML生成関数
+    function renderApiDocs(json) {
+      const container = document.getElementById("api-container");
 
-	<script src="defaults.js"></script>
-	<script src="app.js"></script>
+      for (const path in json.paths) {
+        const methods = json.paths[path];
+        for (const method in methods) {
+          const data = methods[method];
+          console.log("data", data)
+
+          // APIブロック生成
+          const block = document.createElement("div");
+          block.className = "api-block";
+          block.dataset.path = path;
+          block.dataset.method = method.toUpperCase();
+
+          // URI行
+          block.innerHTML += `
+        <div class="row"><label>URI</label><input type="text" value="${path}" disabled></div>
+      `;
+
+          // メソッド行
+          block.innerHTML += `
+        <div class="row"><label>メソッド</label>
+          <span class="method-badge" data-method="${method.toUpperCase()}">${method.toUpperCase()}</span>
+        </div>
+      `;
+
+          // パラメータ分類
+          const pathParams = (data.parameters || []).filter(p => p.in === "path");
+          const queryParams = (data.parameters || []).filter(p => p.in === "query");
+
+          // パスパラメータ
+          if (pathParams.length > 0) {
+            let paramHtml = `<div class="row"><label>パスパラメータ</label><div class="path-table fixed" data-default-key="path ${data.summary}">`;
+            pathParams.forEach(p => {
+              paramHtml += `
+            <div class="kv-row">
+              <div class="kv-key" data-key="${p.name}">${p.name}</div>
+              <input type="text" placeholder="例: ${p.schema.example || ''}" value="${p.schema.example || ''}">
+            </div>
+          `;
+            });
+            paramHtml += `<div class="actions"><button type="button" class="secondary path-reset">初期値にリセット</button></div>`;
+            paramHtml += `</div></div>`;
+            block.innerHTML += paramHtml;
+          }
+
+          // クエリパラメータ
+          block.innerHTML += `
+        <div class="row">
+          <label>クエリパラメータ</label>
+          <div class="body-json-wrap">
+            <textarea class="query-json" rows="4" data-default-key="query ${data.summary}"></textarea>
+            <div class="actions"><button type="button" class="secondary query-reset">初期値にリセット</button></div>
+          </div>
+        </div>
+      `;
+
+          // リクエストボディ
+          if (data.requestBody) {
+            block.innerHTML += `
+          <div class="row">
+            <label>リクエストボディ</label>
+            <div class="body-json-wrap">
+              <textarea class="body-json" rows="8" data-default-key="body ${data.summary}"></textarea>
+              <div class="actions"><button type="button" class="secondary body-reset">初期値にリセット</button></div>
+            </div>
+          </div>
+        `;
+          }
+
+          // 送信ボタン
+          block.innerHTML += `
+        <div class="row"><button class="primary send">送信</button></div>
+      `;
+          console.log(block)
+          container.appendChild(block);
+        }
+      }
+    }
+
+    renderApiDocs(openapiJson);
+    // 生成後、アプリ側の初期化を再トリガー
+    document.dispatchEvent(new CustomEvent('restapitest:blocks:updated'));
+  </script>
 </body>
-</html> 
+
+</html>

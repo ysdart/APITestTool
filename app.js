@@ -160,6 +160,26 @@
 				}
 			});
 		});
+
+		// パスパラメータのリセット
+		blocksContainer.querySelectorAll('.api-block .path-reset').forEach(btn=>{
+			btn.addEventListener('click', (e)=>{
+				const block = e.target.closest('.api-block');
+				const table = block.querySelector('.path-table');
+				if(table){
+					const key = table.getAttribute('data-default-key');
+					const defaults = defaultsMap[key] || {};
+					table.querySelectorAll('.kv-row').forEach(row=>{
+						const keyDiv = row.querySelector('.kv-key');
+						const input = row.querySelector('input');
+						if(keyDiv && input){
+							const pKey = keyDiv.getAttribute('data-key');
+							input.value = (defaults && Object.prototype.hasOwnProperty.call(defaults, pKey)) ? String(defaults[pKey]) : '';
+						}
+					});
+				}
+			});
+		});
 	}
 
 	/** 送信ボタン */
@@ -198,6 +218,19 @@
 			const v = defaultsMap[key];
 			ta.value = v ? JSON.stringify(v, null, 2) : '';
 		});
+		// パスパラメータ
+		blocksContainer.querySelectorAll('.api-block .path-table').forEach(table=>{
+			const key = table.getAttribute('data-default-key');
+			const defaults = defaultsMap[key] || {};
+			table.querySelectorAll('.kv-row').forEach(row=>{
+				const keyDiv = row.querySelector('.kv-key');
+				const input = row.querySelector('input');
+				if(keyDiv && input){
+					const pKey = keyDiv.getAttribute('data-key');
+					input.value = (defaults && Object.prototype.hasOwnProperty.call(defaults, pKey)) ? String(defaults[pKey]) : input.value;
+				}
+			});
+		});
 	}
 
 	// 初期化
@@ -205,4 +238,11 @@
 	wireSendButtons();
 	wireTabs();
 	applyDefaults();
+
+	// 動的にAPIブロックが追加された場合の再初期化（test.html 連携）
+	document.addEventListener('restapitest:blocks:updated', ()=>{
+		wireResetButtons();
+		wireSendButtons();
+		applyDefaults();
+	});
 })(); 
